@@ -15,15 +15,15 @@ body {
 }
 
 .legend {
-  background-color: #fff;
-  border-radius: 3px;
-  bottom: 30px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
-  padding: 10px;
-  position: absolute;
-  right: 10px;
-  z-index: 1;
+    background-color: #fff;
+    border-radius: 3px;
+    bottom: 30px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    padding: 10px;
+    position: absolute;
+    right: 10px;
+    z-index: 1;
 }
 
 .mapboxgl-popup {
@@ -32,10 +32,18 @@ body {
 }
 
 .legend h4 {
-  margin: 0 0 10px;
+    margin: 0 0 10px;
 }
 
+.legendSize rect, .sizeLegend circle {
+    fill: #b7b6b3;
+}
 
-.legendSize rect, .legendSize circle {
-    fill: #E7E5E0;
+.marker {
+  background-image: url('../green.png');
+  background-size: cover;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  cursor: pointer;
 }
