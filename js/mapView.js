@@ -150,57 +150,91 @@ function getMinMax(data){
 }
 
 function buildLegend(data){
-    linearColorScale = d3.scaleLinear()
-                         .domain([minMean,maxMean])
-                         .range(["rgba(66,202,253, 0.6)", "rgba(158,140,77, 0.7)"]);
+//    linearColorScale = d3.scaleLinear()
+//                         .domain([minMean,maxMean])
+//                         .range(["rgba(66,202,253, 0.6)", "rgba(158,140,77, 0.7)"]);
+
+    linearColorScale = d3.scaleOrdinal()
+                         .domain([minMean, minMean + ((maxMean-minMean)/4), minMean + 2*((maxMean-minMean)/4), minMean + 3*((maxMean-minMean)/4),  maxMean])
+                         .range(["rgba(66,202,253, 0.6)", "rgba(89, 187, 209, 0.624)", "rgba(112, 171, 165, 0.65)", "rgba(135, 156, 121, 0.675)",  "rgba(158,140,77, 0.7)"]);
 
 //    var ordinalSizeScale = d3.scaleLinear().domain([minStd, maxStd]).range([7,14]);   **if we need to show domains as actual std values, instead of high/med/low
+
     ordinalSizeScale = d3.scaleOrdinal()
                          .domain([0,1,2,3])
-                         .range([6, 10, 12, 15]);
+//                         .range([minStd, minStd + ((maxStd-minStd)/3), minStd + 2*((maxStd-minStd)/3), maxStd]);
+                         .range([6, 9, 12, 15]);
 
     linearOpacityScale = d3.scaleOrdinal()
                            .domain([0, 1, 2, 3])
-                           .range([0.2, 0.4, 0.6, 0.8]);
+                           .range([0.3, 0.4, 0.6, 0.95]);
 
     legendSvg = d3.select(".legend")
                   .append("svg")
                   .attr("width", "130px")
                   .attr("height", "300px");
 
+    legendSvg.append("defs").append('marker')
+                 .attr('id', 'marker_arrow_right')
+                 .attr('markerHeight', 8)
+                 .attr('markerWidth', 8)
+                 .attr('markerUnits', 'strokeWidth')
+                 .attr('orient', 'auto')
+                 .attr('refX', 0)
+                 .attr('refY', 0)
+                 .attr('viewBox', '-5 -5 10 10')
+                 .append('svg:path')
+                 .attr('d', 'M 0,0 m -5,-5 L 5,0 L -5,5 Z')
+                 .attr('fill', '#666666');
+
+    legendSvg.append("defs").append('marker')
+             .attr('id', 'marker_arrow_left')
+             .attr('markerHeight', 8)
+             .attr('markerWidth', 8)
+             .attr('markerUnits', 'strokeWidth')
+             .attr('orient', 'auto-start-reverse')
+             .attr('refX', 0)
+             .attr('refY', 0)
+             .attr('viewBox', '-5 -5 10 10')
+             .append('svg:path')
+             .attr('d', 'M 0,0 m -5,-5 L 5,0 L -5,5 Z')
+             .attr('fill', '#666666');
+
     legendSvg.append("g")
              .attr("class", "colorLegend")
-             .attr("transform", "translate(0,10)");
+             .attr("transform", "translate(4,10)");
 
     legendSvg.append("line")
              .attr("x1",(-2))
              .attr("x2", 130)
-             .attr("y1", 128 )
-             .attr("y2", 128)
+             .attr("y1", 130 )
+             .attr("y2", 130)
              .style("stroke", "#DDDDDD");
 
     legendSvg.append("g")
              .attr("class", "sizeLegend")
-             .attr("transform", "translate(0,146)");
+             .attr("transform", "translate(4,155)");
 
     nodeSize = d3.legendSize()
                  .scale(ordinalSizeScale)
                  .cells(4)
-                 .title("Node size and opacity represent prediction confidence")
+                 .title("Node size and transparency represent prediction confidence")
                  .titleWidth(130)
                  .labelWrap(20)
                  .orient('horizontal')
-                 .labels(["Low ", "Med", "High", "Very High"])
-                 .labelAlign("end")
-                 .labelOffset(12)
+//                 .labels(["Low ", "Med", "High", "Very High"])
+                 .labels(["Uncertain ", "", "", "Certain"])
+                 .labelAlign("start")
+                 .labelOffset(15)
                  .shapeWidth(60)
-                 .shapePadding(10)
+                 .shapePadding(12)
                  .shape("circle");
 
     nodeColor = d3.legendColor()
                   .shape("circle")
                   .shapeWidth(25)
                   .titleWidth(120)
+                  .labels(["Very Low ", "Low", "Moderate", "High", "Very High"])
                   .title("Node color represents PM2.5 level")
                   .shapeRadius(8)
                   .orient('vertical')
@@ -210,16 +244,24 @@ function buildLegend(data){
 
     legendSvg.select(".sizeLegend").call(nodeSize);
 
+    legendSvg.append("path")
+        .attr('d', function(d,i){ return 'M 8,243 L 120,243' })
+        .attr('stroke', '#666666')
+        .attr('stroke-width', 1)
+        .attr('stroke-linecap', 'round')
+        .attr('marker-start', function(d,i){ return 'url(#marker_arrow_left)' })
+        .attr('marker-end', function(d,i){ return 'url(#marker_arrow_right)' });
+
     legendSvg.append("line")
-         .attr("x1",(-2))
-         .attr("x2", 130)
-         .attr("y1", 250 )
-         .attr("y2", 250)
-         .style("stroke", "#DDDDDD");
+             .attr("x1",(-2))
+             .attr("x2", 130)
+             .attr("y1", 260 )
+             .attr("y2", 260)
+             .style("stroke", "#DDDDDD");
 
     legendSvg.append("g")
              .attr("class", "sensorLegend")
-             .attr("transform", "translate(0,258)");
+             .attr("transform", "translate(0,260)");
 
     d3.select(".sensorLegend")
                   .append("image")
@@ -230,8 +272,8 @@ function buildLegend(data){
     d3.select(".sensorLegend")
       .append("text")
        .attr("x", "45px")
-       .attr("y", "25px")
-       .text("Static Sensor");
+       .attr("y", "28px")
+       .text("Sensor location");
 
     legendSvg.select(".sizeLegend")
              .selectAll(".swatch")
@@ -243,6 +285,14 @@ function buildLegend(data){
 function calculate(data){
 
     getMinMax(data);
+
+    uncertaintyScale = d3.scaleQuantile()
+                         .domain([minStd, minStd + ((maxStd-minStd)/3), minStd + 2*((maxStd-minStd)/3), maxStd])
+                         .range(["Highly Certain", "Moderately Certain", "Moderately Uncertain", "Highly Uncertain"]);
+
+    pollutionScale = d3.scaleQuantile()
+                         .domain([minMean, minMean + ((maxMean-minMean)/4), minMean + 2*((maxMean-minMean)/4), minMean + 3*((maxMean-minMean)/4),  maxMean])
+                         .range(["Very Low ", "Low", "Moderate", "High", "Very High"]);
 
     geoData = { type: "FeatureCollection", features: reformat(data) };
     sensorGeoData = { type: "FeatureCollection", features: reformatSensor(sensorsArray) };
@@ -304,7 +354,7 @@ function calculate(data){
                 ["interpolate",
                 ["linear"],
                 ["get", "std"],
-                minStd, 0,
+                minStd, 1.3,
                 maxStd, 1
             ],
             "circle-blur":
@@ -312,21 +362,21 @@ function calculate(data){
                 ["linear"],
                 ["get", "std"],
                 minStd, 0.1,
-                maxStd, 1
+                maxStd, 0.9
             ],
             "circle-opacity":
                 ["interpolate",
                 ["linear"],
                 ["get", "std"],
-                minStd, 0.8,
-                maxStd, 0.2
+                minStd, 0.92,
+                maxStd, 0.3
             ],
             "circle-stroke-opacity":
                 ["interpolate",
                 ["linear"],
                 ["get", "std"],
-                minStd, 0.9,
-                maxStd, 0.5
+                minStd, 0.92,
+                maxStd, 0.6
             ]
         }
         }, 'waterway-label');
@@ -354,9 +404,6 @@ function calculate(data){
 
         // When click event occurs on grid element, open popup at the location of the feature
         map.on('click', 'PM2.5Layer', function (e) {
-
-
-            console.log(e);
             coordinates = e.features[0].geometry.coordinates.slice();
             pollutant = e.features[0].properties.mean;
             confidence = e.features[0].properties.std;
@@ -367,12 +414,11 @@ function calculate(data){
             while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
                 coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
             }
-
             new mapboxgl.Popup()
                 .setLngLat(coordinates)
                 .setHTML(
-                    '<b><font size="2" color="#608985"> PM2.5 level: </font></b><font size="2">' + pollutant + '</font><br>' +
-                    '<b><font size="2" color="#608985"> Standard Deviation (Confidence): </font></b><font size="2">' + confidence + '</font><br>' +
+                    '<b><font size="2" color="#608985"> PM2.5 level: </font></b><font size="2">' + pollutionScale(pollutant) + " ( " + pollutant + " )" + '</font><br>' +
+                    '<b><font size="2" color="#608985"> Standard Deviation (Confidence): </font></b><font size="2">' + uncertaintyScale(confidence) + " ( " + confidence + " )" + '</font><br>' +
                     '<b><font size="2" color="#608985"> Coordinates: </font></b><font size="2">' + coordinates + '</font><br>')
                 .addTo(map);
 
