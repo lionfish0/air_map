@@ -1,4 +1,4 @@
-mapboxgl.accessToken = 'pk.eyJ1IjoiaXJlbWljMDEiLCJhIjoiY2l0cGx6NGloMDAwcTJ5cGZ3bnp1ZDJzdiJ9.a0Qb6q_5wUEWM3mgrA95YQ';
+mapboxgl.accessToken = '';
 var points = [];
 
 var sensorsArray = [
@@ -350,13 +350,13 @@ function calculate(data){
                 minMean, "#42cafd",   //muddy
                 maxMean, "#9e8c4d"
             ],
-            "circle-stroke-width":
-                ["interpolate",
-                ["linear"],
-                ["get", "std"],
-                minStd, 1.3,
-                maxStd, 1
-            ],
+            "circle-stroke-width": 1,
+//                ["interpolate",
+//                ["linear"],
+//                ["get", "std"],
+//                minStd, 0,
+//                maxStd, 1
+//            ],
             "circle-blur":
                 ["interpolate",
                 ["linear"],
@@ -369,14 +369,16 @@ function calculate(data){
                 ["linear"],
                 ["get", "std"],
                 minStd, 0.92,
-                maxStd, 0.3
+                maxStd, 0.1
             ],
             "circle-stroke-opacity":
                 ["interpolate",
                 ["linear"],
                 ["get", "std"],
-                minStd, 0.92,
-                maxStd, 0.6
+                minStd,1,
+                maxStd, 0
+//                minStd, 0.92,
+//                maxStd, 0.3
             ]
         }
         }, 'waterway-label');
