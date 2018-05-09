@@ -1,0 +1,102 @@
+body {
+    margin:0;
+    padding:0;
+}
+
+#containerThree {
+    height:600px;
+    margin: auto;
+    width: 96%;
+}
+
+.pollutionTable {
+    position: relative;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    -ms-transform: translateX(-50%);
+    transform: translateX(-50%);
+}
+
+.timeofday{
+    text-align: center;
+    margin:auto;
+    display:table;
+    fill:white;
+    font-family:  "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+#meanChart text{
+  font-family:  "Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-weight: 200;
+ }
+
+.timeofday2{
+    display:table;
+    margin:auto;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 1px;
+    border: none;
+    font-family:  "Helvetica Neue",Helvetica,Arial,sans-serif;
+    /* font: normal 48px/normal "Warnes", Helvetica, sans-serif; */
+    color: rgba(255,255,255,1);
+    text-decoration: normal;
+    text-align: center;
+    -o-text-overflow: clip;
+    text-overflow: clip;
+    white-space: pre;
+    text-shadow: 0 0 10px rgba(255,255,255,1) , 0 0 20px rgba(255,255,255,1) , 0 0 30px rgba(255,255,255,1) , 0 0 40px #ff00de , 0 0 70px #ff00de , 0 0 80px #ff00de , 0 0 100px #ff00de ;
+    -webkit-transition: all 200ms cubic-bezier(0.42, 0, 0.58, 1);
+    -moz-transition: all 200ms cubic-bezier(0.42, 0, 0.58, 1);
+    -o-transition: all 200ms cubic-bezier(0.42, 0, 0.58, 1);
+    transition: all 200ms cubic-bezier(0.42, 0, 0.58, 1);
+}
+
+.pop{
+    border-radius: 0px 0px 30px 30px;
+}
+
+ .stop-left {
+  stop-color: #8DE969;  /* green */
+}
+
+.stop-right {
+   stop-color: #3369CE;  /* blue */
+}
+
+.ChartTitle {
+    margin-left:2%;
+    margin-bottom:4px;
+    position:relative;
+    text-align: center;
+    fill:white;
+    color:white;
+    font-size: 40px;
+    font-weight: 100;
+    font-family:  "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+.ChartTitle:before, .ChartTitle:after {
+    position: absolute;
+    top: 51%;
+    overflow: hidden;
+    width: 50%;
+    height: 1px;
+    content: '\a0';
+    background-color: white;
+}
+
+.ChartTitle:before {
+    margin-left: -50%;
+    text-align: right;
+}
+
+* {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+}

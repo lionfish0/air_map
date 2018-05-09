@@ -1,113 +1,55 @@
-mapboxgl.accessToken = '';
-var points = [];
+mapboxgl.accessToken = 'pk.eyJ1IjoiaXJlbWljMDEiLCJhIjoiY2l0cGx6NGloMDAwcTJ5cGZ3bnp1ZDJzdiJ9.a0Qb6q_5wUEWM3mgrA95YQ';
+url = "http://54.194.132.252:8080/";
 
-var sensorsArray = [
-  {
-    "id": "Sensor 1",
-    "lon": 32.59,
-    "lat": 0.33,
-    "mean": "rss"
-  },
-  {
-    "id": "Sensor 2",
-    "lon": 32.586,
-    "lat": 0.274,
-     "mean": "rss"
-  },
-  {
-    "id": "Sensor 3",
-    "lon": 32.606,
-    "lat": 0.27,
-     "mean": "rss"
-  },
-  {
-    "id": "Sensor 4",
-    "lon": 32.592003409581,
-    "lat": 0.313235,
-     "mean": "rss"
-  },
-  {
-    "id": "Sensor 5",
-    "lon": 32.564,
-    "lat": 0.3,
-     "mean": "rss"
+var currentCoordinates;
 
-  },
-  {
-    "id": "Sensor 6",
-    "lon": 32.622,
-    "lat": 0.274,
-     "mean": "rss"
-  },
-  {
-    "id": "Sensor 7",
-    "lon": 32.632,
-    "lat": 0.336,
-     "mean": "rss"
-  },
-  {
-    "id": "Sensor 8",
-    "lon": 32.63,
-    "lat": 0.316,
-     "mean": "rss"
-  },
-  {
-    "id": "Sensor 9",
-    "lon": 32.638,
-    "lat": 0.36,
-     "mean": "rss"
-  },
-  {
-    "id": "Sensor 10",
-    "lon": 32.648,
-    "lat": 0.302,
-     "mean": "rss"
-  },
-  {
-    "id": "Sensor 11",
-    "lon": 32.3113,
-    "lat": 0.34242,
-     "mean": "rss"
-  }
-  ];
+//var filenames = [ url + "predictgrid/full/pm25/0.27/32.55/0.37/32.65/" + toISOStringLocal(new Date()),  url + "getsensorlist"];
+var filenames = [url + "predictgrid/full/pm25/0.27/32.55/0.37/32.65/2018-04-30T09:48:39",  url + "getsensorlist"];
+var queue = d3.queue();
+
+console.log("1.  API called by Map Graph: " + filenames);
+
+/***** Run two separate API calls for sensors & grid  ******/
+function onPageLoad(){
+    filenames.forEach( function(filename){
+        queue.defer(d3.json, filename);
+    });
+
+    queue.awaitAll(function(error, DataSets){
+        data = DataSets[0];
+        sensorsInfo = DataSets[1];
+        calculate(data);
+    })
+
+    setUpBasicPageComponents();
+}
+
+/***** Transform date to ISO Format  ******/
+function toISOStringLocal(d) {
+  function z(n){return (n<10?'0':'') + n}
+  return d.getFullYear() + '-' + z(d.getMonth()+1) + '-' +
+         z(d.getDate()) + 'T' + z(d.getHours()) + ':' +
+         z(d.getMinutes()) + ':' + z(d.getSeconds())
+
+}
 
 /***** Set Up Map  ******/
 function setupMap(){
+    d3.select('#containerOne').select("h2").attr("class", "ChartTitle").text("Air Quality over Kampala");
     map = new mapboxgl.Map({
-        container: 'map', // container id
+        container: 'mapChart',
         style: 'mapbox://styles/mapbox/streets-v9', // stylesheet location
         center: [32.60, 0.319], // starting position [longitude, latitutde]
-        zoom: 12.7 // starting zoom
-    });
+        zoom: 12.7}); // starting zoom
 }
 
 /***** Declare some basic elements of the page that we are going to use later on *****/
 function setUpBasicPageComponents(){
-    setupMap();
-
-    mapComponent = d3.select("#map");
-
-    mapWidth =  document.getElementById("map").offsetWidth;
-    mapHeight =  document.getElementById("map").offsetHeight;
-
-    svgComponent = d3.select("body")
-                     .append("svg")
-                     .attr("width", mapWidth)
-                     .attr("height", mapHeight)
-                     .append("g")
-                     .attr("transform", "translate(0,0)");
-
-    getData();
+    mapComponent = d3.select("#mapChart");
+    mapWidth =  document.getElementById("mapChart").offsetWidth;
 }
 
-/***** Read JSON file  *****/
-function getData(){
-    d3.json("testData/data2.json", function(data){
-        calculate(data);
-    })
-}
-
-/***** Passs any array and return GEOJSON format suitable for mapbox  *****/
+/***** Pass an array and return its GEOJSON format suitable for mapbox  *****/
 function reformat (array) {
     var temporary = [];
     array.map(function (d){
@@ -123,21 +65,28 @@ function reformat (array) {
     return temporary;
 }
 
+/***** Format Sensor array to GEOJSON  *****/
 function reformatSensor (array) {
     var temporary = [];
     array.map(function (d){
-        temporary.push({
-          properties: { icon: d.mean,
-                        id :  d.id},
+        if(isNaN(d.lat))
+          {}
+        else
+        {temporary.push({
+          properties: { icon: d.rawdata,
+                        id :  d.name,
+                        locationpredictions: d.location_predictions,
+                        measures: d.measures},
           type: "Feature",
-          geometry: { coordinates:[ +d.lon,
+          geometry: { coordinates:[ +d.long,
                                     +d.lat ],
                       type:"Point"}
-        });
+        });}
     });
     return temporary;
 }
 
+/***** Get ranges of the dimensions we'll use on the graph; will be later used for size/colour/shape  *****/
 function getMinMax(data){
     maxLat = d3.max(data, function(d,i) { return parseFloat(d['lat']); });
     minLat = d3.min(data, function(d,i) { return parseFloat(d['lat']); });
@@ -149,30 +98,33 @@ function getMinMax(data){
     minMean = d3.min(data, function(d,i) { return parseFloat(d['mean']); });
 }
 
-function buildLegend(data){
-//    linearColorScale = d3.scaleLinear()
-//                         .domain([minMean,maxMean])
-//                         .range(["rgba(66,202,253, 0.6)", "rgba(158,140,77, 0.7)"]);
-
+function buildLegend(){
     linearColorScale = d3.scaleOrdinal()
                          .domain([minMean, minMean + ((maxMean-minMean)/4), minMean + 2*((maxMean-minMean)/4), minMean + 3*((maxMean-minMean)/4),  maxMean])
                          .range(["rgba(66,202,253, 0.6)", "rgba(89, 187, 209, 0.624)", "rgba(112, 171, 165, 0.65)", "rgba(135, 156, 121, 0.675)",  "rgba(158,140,77, 0.7)"]);
 
-//    var ordinalSizeScale = d3.scaleLinear().domain([minStd, maxStd]).range([7,14]);   **if we need to show domains as actual std values, instead of high/med/low
-
     ordinalSizeScale = d3.scaleOrdinal()
                          .domain([0,1,2,3])
-//                         .range([minStd, minStd + ((maxStd-minStd)/3), minStd + 2*((maxStd-minStd)/3), maxStd]);
                          .range([6, 9, 12, 15]);
 
     linearOpacityScale = d3.scaleOrdinal()
                            .domain([0, 1, 2, 3])
                            .range([0.3, 0.4, 0.6, 0.95]);
 
+    d3.select(".legend")
+      .style("background-color", "#fff");
+
+    d3.select("h4#legendTitle").text("LEGEND");
+
     legendSvg = d3.select(".legend")
                   .append("svg")
                   .attr("width", "130px")
                   .attr("height", "300px");
+
+    legendSvg.append("defs").append('filter')
+                 .attr('id', 'blur')
+                 .append('feGaussianBlur')
+                 .attr('stdDeviation', 5);
 
     legendSvg.append("defs").append('marker')
                  .attr('id', 'marker_arrow_right')
@@ -222,7 +174,6 @@ function buildLegend(data){
                  .titleWidth(130)
                  .labelWrap(20)
                  .orient('horizontal')
-//                 .labels(["Low ", "Med", "High", "Very High"])
                  .labels(["Uncertain ", "", "", "Certain"])
                  .labelAlign("start")
                  .labelOffset(15)
@@ -267,7 +218,7 @@ function buildLegend(data){
                   .append("image")
                   .attr("width", "45px")
                   .attr("height", "45px")
-                  .attr("xlink:href", "green.png");
+                  .attr("xlink:href", 'images/sensor.png');
 
     d3.select(".sensorLegend")
       .append("text")
@@ -279,11 +230,10 @@ function buildLegend(data){
              .selectAll(".swatch")
              .style("opacity", function(d){ return linearOpacityScale(d);})
              .attr("filter", function(d){ return "blur(" + (1 - d/3) + "px)";});
-
 }
 
+/***** Do some more work with data before building map (i.e. format the data in GEOJSON)  *****/
 function calculate(data){
-
     getMinMax(data);
 
     uncertaintyScale = d3.scaleQuantile()
@@ -295,12 +245,38 @@ function calculate(data){
                          .range(["Very Low ", "Low", "Moderate", "High", "Very High"]);
 
     geoData = { type: "FeatureCollection", features: reformat(data) };
-    sensorGeoData = { type: "FeatureCollection", features: reformatSensor(sensorsArray) };
+    sensorGeoData = { type: "FeatureCollection", features: reformatSensor(sensorsInfo) };
+    setupMap();
+    buildLegend();
+    buildMap();
+}
 
-    buildLegend(data);
+/***** Get width of browser window; to adjust size of page components accordingly  *****/
+function getWidth() {
+  return Math.max(
+    document.body.scrollWidth,
+    document.documentElement.scrollWidth,
+    document.body.offsetWidth,
+    document.documentElement.offsetWidth,
+    document.documentElement.clientWidth
+  );
+}
+
+/***** Get height of browser window; to adjust size of page components accordingly  *****/
+function getHeight() {
+  return Math.max(
+    document.body.offsetHeight,
+    document.documentElement.offsetHeight
+  );
+}
+
+function buildMap(){
+    mapComponent.style("border-color", "white")
+                .style("border-style", "solid")
+                .style("border-width", "2px")
+                .style("border-radius", "3px");
 
     map.on('style.load', function(){
-
         /*** GRID ***/
         map.addSource('pollut',{
         "type": "geojson",
@@ -338,10 +314,6 @@ function calculate(data){
                 ["get", "mean"],
                 minMean, "#42cafd",   //muddy
                 maxMean, "#9e8c4d"
-//                minMean,"#42cafd",    //grey
-//                maxMean, "#808080"
-//                minMean, "#002168",     //blue/red
-//                maxMean, "#BF1831"
             ],
             "circle-stroke-color":
                 ["interpolate",
@@ -351,12 +323,6 @@ function calculate(data){
                 maxMean, "#9e8c4d"
             ],
             "circle-stroke-width": 1,
-//                ["interpolate",
-//                ["linear"],
-//                ["get", "std"],
-//                minStd, 0,
-//                maxStd, 1
-//            ],
             "circle-blur":
                 ["interpolate",
                 ["linear"],
@@ -377,13 +343,11 @@ function calculate(data){
                 ["get", "std"],
                 minStd,1,
                 maxStd, 0
-//                minStd, 0.92,
-//                maxStd, 0.3
             ]
         }
         }, 'waterway-label');
 
-         /*** STATIC SENSORS USING DUMMY DATA ***/
+         /*** STATIC SENSORS***/
         map.addSource('sensors',{
         "type": "geojson",
         "data": sensorGeoData
@@ -400,31 +364,33 @@ function calculate(data){
             new mapboxgl.Marker(sensorElement)
               .setLngLat(marker.geometry.coordinates)
               .setPopup(new mapboxgl.Popup({ offset: 25 }) // add popups
-              .setHTML('<h3>' + marker.properties.id + '</h3>'))
+              .setHTML('<h3>' + marker.properties.id + '' + '<br><a href="http://54.194.132.252:8080/' + marker.properties.locationpredictions
+              + '">Link to location predictions </a><br> Pollutants measured : ' + marker.properties.measures + '</h3>'))
               .addTo(map);
+        });
+
+        map.on('mousemove', function (e) {
+            currentCoordinates = e.lngLat;
         });
 
         // When click event occurs on grid element, open popup at the location of the feature
         map.on('click', 'PM2.5Layer', function (e) {
+
             coordinates = e.features[0].geometry.coordinates.slice();
             pollutant = e.features[0].properties.mean;
             confidence = e.features[0].properties.std;
 
-            // Ensure that if the map is zoomed out such that multiple
-            // copies of the feature are visible, the popup appears
-            // over the copy being pointed to.
+            // Ensure that if the map is zoomed out such that multiple copies of the feature are visible, the popup appears over the copy being pointed to.
             while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
                 coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
             }
             new mapboxgl.Popup()
                 .setLngLat(coordinates)
                 .setHTML(
-                    '<b><font size="2" color="#608985"> PM2.5 level: </font></b><font size="2">' + pollutionScale(pollutant) + " ( " + pollutant + " )" + '</font><br>' +
-                    '<b><font size="2" color="#608985"> Standard Deviation (Confidence): </font></b><font size="2">' + uncertaintyScale(confidence) + " ( " + confidence + " )" + '</font><br>' +
-                    '<b><font size="2" color="#608985"> Coordinates: </font></b><font size="2">' + coordinates + '</font><br>')
+                    '<font size="1" color="#608985"> PM2.5 level: </font><font size="1">' + pollutionScale(pollutant) + " ( " + pollutant + " )" + '</font><br>' +
+                    '<font size="1" color="#608985"> Standard Deviation (Confidence): </font><font size="1">' + uncertaintyScale(confidence) + " ( " + confidence + " )" + '</font><br>' +
+                    '<font size="1" color="#608985"> Coordinates: </font><font size="1">' + coordinates + '</font><br>')
                 .addTo(map);
-
-//             map.flyTo({center: e.features[0].geometry.coordinates});
         });
 
         // Change the cursor to a pointer when the mouse is over the places layer.
@@ -437,9 +403,43 @@ function calculate(data){
             map.getCanvas().style.cursor = '';
         });
 
-        map.addControl(new mapboxgl.NavigationControl());
-
+        navigationBox = new mapboxgl.NavigationControl();
+            map.addControl(navigationBox, 'top-left');
    });
 }
 
-setUpBasicPageComponents();
+function showMapInstructions(){
+    d3.select("#containerOne")
+      .append("div")
+      .attr("id", "right")
+      .attr("width",  function(){
+         if (getWidth()<=1300) { return "360px"; }
+         else { return "460px"; }})
+      .style("margin-top", "40px")
+      .style("margin-left", "auto")
+      .style("margin-right", "auto")
+      .append("g")
+      .attr("transform", "translate(0,0)")
+      .classed("instructionSet", true)
+      .attr("display", "block")
+      .append("foreignObject")
+      .attr("x", 80)
+      .attr("y", 80)
+      .attr("height", 80)
+      .attr("width", 80)
+      .append("xhtml:div")
+      .style("color", "white")
+      .style("margin-left", "auto")
+      .style("margin-right", "auto")
+      .style("display", "block")
+      .style("width", "70%")
+      .style("font-size", "28px")
+      .style("font-weight", "100")
+      .append("span")
+      .attr("class", "tspan-class")
+      .html("The map on the left displays the current PM2.5 levels for the city of Kampala, Uganda.<p> A circle represents a certain area and the pollution levels over that area. <p> The bluer a circle is, the better the air quality is for that area.<p>Click on a sensor or circle to find out more information about it.");
+}
+
+onPageLoad();
+
+showMapInstructions();

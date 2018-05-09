@@ -1,34 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html >
 
 <head>
     <meta charset='utf-8' />
     <title>Kampala Air Quality</title>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
-    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.js'></script>
-    <script src="https://d3js.org/d3-hexbin.v0.2.min.js"></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.5/d3-legend.min.js'></script>
-    <script src="https://d3js.org/d3.v4.min.js"></script>
-    <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
-    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.css' rel='stylesheet' />
-    <link href='css/mapStyle.css' rel='stylesheet' />
+    <!-- JavaScript -->
+    <script src='js/libs/mapbox-gl.js'></script>
+    <script src='js/libs/d3.v4.min.js'></script>
+    <script src='js/libs/d3-legend.min.js'></script>
+    <!-- CSS -->
+    <link href='css/libs/mapbox-gl.css' rel='stylesheet' />
+    <link href='css/libs/mapbox-gl-geocoder.css' rel='stylesheet' />
+    <link href='css/map.css' rel='stylesheet' />
+    <link href='css/table.css' rel='stylesheet' />
+    <link href='css/bar.css' rel='stylesheet' />
 </head>
 
 <body>
-    <defs>
-        <filter id="blur">
-            <feGaussianBlur stdDeviation="5" />
-        </filter>
-    </defs>
-    <div id='map'>
-        <div id='legend' class='legend'>
-          <h4 style="text-transform: uppercase; color:#608985; text-align: center;">Legend</h4>
+    <div id="containerOne">
+        <h2></h2>
+        <div id='mapChart'>
+            <div id='legend' class='legend'>
+                <h4 id='legendTitle'></h4>
+            </div>
         </div>
+        <script src="js/map.js"></script>
     </div>
-    <script src="js/mapView.js"></script>
+
+    <div id="containerTwo">
+        <div id='barChart'></div>
+        <script src="js/bar.js"></script>
+    </div>
+
+    <div id="containerThree">
+        <div id='tableChart'></div>
+        <script src="js/table.js"></script>
+    </div>
 </body>
 
 </html>
-
-
-

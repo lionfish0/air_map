@@ -1,0 +1,52 @@
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+#containerTwo {
+    height:600px;
+    margin: auto;
+    width: 96%;
+}
+
+.bar {
+    fill: #8DE969;
+}
+
+.bar:hover {
+    fill: #3369CE;
+}
+.axis--y text, .axis--y line {
+    stroke: white;
+    fill: white;
+}
+
+.axis--x text, .axis--x line {
+    stroke: white;
+    fill: white;
+}
+
+.tspan-class{
+    text-align: center;
+    margin:auto;
+    display:table;
+    fill:white;
+    font-weight: 200;
+    font-family:  "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+.axis--x path, .axis--y path {
+    stroke: white;
+}
+
+.frequency_buttons:hover{
+    color:#f00;
+}
+
+.frequency_buttons:active{
+   color:#f00;
+}
+
+.frequency_buttons:focus{
+   color:#f00;
+}
