@@ -226,7 +226,7 @@ function showBarInstructions(){
           .style("margin-right", "auto")
           .style("display", "block")
           .style("width", "90%")
-          .style("font-size", "28px")
+          .style("font-size", "20px")
           .style("font-weight", "100")
           .style("font-family", "Helvetica Neue")
           .append("span")

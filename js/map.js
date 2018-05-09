@@ -111,15 +111,24 @@ function buildLegend(){
                            .domain([0, 1, 2, 3])
                            .range([0.3, 0.4, 0.6, 0.95]);
 
-    d3.select(".legend")
-      .style("background-color", "#fff");
+    d3.select("#right").append("div").classed("legend", true).attr("id", "legend");
 
-    d3.select("h4#legendTitle").text("LEGEND");
+    d3.select(".legend").append("h4").attr("id", "legendTitle") ;
+
+    d3.select(".legend")
+      .style("background-color", "#fff")
+      .style("left",  function(){
+        if (document.documentElement.clientWidth<=1300) { return "70px"; }
+         else { return "140px"; }});
+
+    d3.select("h4#legendTitle").attr("width", 50).text("LEGEND");
 
     legendSvg = d3.select(".legend")
                   .append("svg")
-                  .attr("width", "130px")
-                  .attr("height", "300px");
+                  .attr("width",  function(){
+                        if (document.documentElement.clientWidth<=1300) { return "280px"; }
+                         else { return "320px"; }})
+                  .attr("height", "290px");
 
     legendSvg.append("defs").append('filter')
                  .attr('id', 'blur')
@@ -154,25 +163,31 @@ function buildLegend(){
 
     legendSvg.append("g")
              .attr("class", "colorLegend")
-             .attr("transform", "translate(4,10)");
+              .attr("transform", function(){
+                     if (document.documentElement.clientWidth<=1300) { return "translate(25,10)"; }
+                 else { return "translate(60,10)"; }});
 
     legendSvg.append("line")
              .attr("x1",(-2))
-             .attr("x2", 130)
+             .attr("x2",  function(){
+                        if (document.documentElement.clientWidth<=1300) { return "276px"; }
+                         else { return "316px"; }})
              .attr("y1", 130 )
              .attr("y2", 130)
              .style("stroke", "#DDDDDD");
 
     legendSvg.append("g")
              .attr("class", "sizeLegend")
-             .attr("transform", "translate(4,155)");
+             .attr("transform", function(){
+                        if (document.documentElement.clientWidth<=1300) { return "translate(25,155)"; }
+                         else { return "translate(60,155)"; }});
 
     nodeSize = d3.legendSize()
                  .scale(ordinalSizeScale)
                  .cells(4)
                  .title("Node size and transparency represent prediction confidence")
-                 .titleWidth(130)
-                 .labelWrap(20)
+                 .titleWidth(250)
+//                 .labelWrap(20)
                  .orient('horizontal')
                  .labels(["Uncertain ", "", "", "Certain"])
                  .labelAlign("start")
@@ -184,7 +199,7 @@ function buildLegend(){
     nodeColor = d3.legendColor()
                   .shape("circle")
                   .shapeWidth(25)
-                  .titleWidth(120)
+                  .titleWidth(250)
                   .labels(["Very Low ", "Low", "Moderate", "High", "Very High"])
                   .title("Node color represents PM2.5 level")
                   .shapeRadius(8)
@@ -196,7 +211,9 @@ function buildLegend(){
     legendSvg.select(".sizeLegend").call(nodeSize);
 
     legendSvg.append("path")
-        .attr('d', function(d,i){ return 'M 8,243 L 120,243' })
+    .attr("d", function(){
+                        if (document.documentElement.clientWidth<=1300) { return 'M 25,243 L 157,243'; }
+                         else { return 'M 60,243 L 186,243'; }})
         .attr('stroke', '#666666')
         .attr('stroke-width', 1)
         .attr('stroke-linecap', 'round')
@@ -205,14 +222,18 @@ function buildLegend(){
 
     legendSvg.append("line")
              .attr("x1",(-2))
-             .attr("x2", 130)
+              .attr("x2",  function(){
+                        if (document.documentElement.clientWidth<=1300) { return "276px"; }
+                         else { return "316px"; }})
              .attr("y1", 260 )
              .attr("y2", 260)
              .style("stroke", "#DDDDDD");
 
     legendSvg.append("g")
              .attr("class", "sensorLegend")
-             .attr("transform", "translate(0,260)");
+               .attr("transform", function(){
+                     if (document.documentElement.clientWidth<=1300) { return "translate(15,258)"; }
+                 else { return "translate(50,258)"; }});
 
     d3.select(".sensorLegend")
                   .append("image")
@@ -409,35 +430,38 @@ function buildMap(){
 }
 
 function showMapInstructions(){
-    d3.select("#containerOne")
-      .append("div")
-      .attr("id", "right")
-      .attr("width",  function(){
-         if (getWidth()<=1300) { return "360px"; }
-         else { return "460px"; }})
-      .style("margin-top", "40px")
-      .style("margin-left", "auto")
-      .style("margin-right", "auto")
-      .append("g")
-      .attr("transform", "translate(0,0)")
-      .classed("instructionSet", true)
-      .attr("display", "block")
-      .append("foreignObject")
-      .attr("x", 80)
-      .attr("y", 80)
-      .attr("height", 80)
-      .attr("width", 80)
-      .append("xhtml:div")
-      .style("color", "white")
-      .style("margin-left", "auto")
-      .style("margin-right", "auto")
-      .style("display", "block")
-      .style("width", "70%")
-      .style("font-size", "28px")
-      .style("font-weight", "100")
-      .append("span")
-      .attr("class", "tspan-class")
-      .html("The map on the left displays the current PM2.5 levels for the city of Kampala, Uganda.<p> A circle represents a certain area and the pollution levels over that area. <p> The bluer a circle is, the better the air quality is for that area.<p>Click on a sensor or circle to find out more information about it.");
+     divDescription = d3.select("#containerOne")
+                          .append("div")
+                          .attr("id", "right")
+                          .attr("position", "absolute")
+                          .attr("width",  function(){
+                             if (getWidth()<=1300) { return "360px"; }
+                             else { return "460px"; }})
+                          .style("margin-top", "20px")
+                          .style("margin-left", "auto")
+                          .style("margin-right", "auto");
+
+
+     divDescription.append("g")
+                  .attr("transform", "translate(0,0)")
+                  .classed("instructionSet", true)
+                  .attr("display", "block")
+                  .append("foreignObject")
+                  .attr("x", 80)
+                  .attr("y", 80)
+                  .attr("height", 80)
+                  .attr("width", 80)
+                  .append("xhtml:div")
+                  .style("color", "white")
+                  .style("margin-left", "auto")
+                  .style("margin-right", "auto")
+                  .style("display", "block")
+                  .style("width", "82%")
+                  .style("font-size", "20px")
+                  .style("font-weight", "100")
+                  .append("span")
+                  .attr("class", "tspan-class")
+                  .html("This map provides an effective overview of the current levels of air pollution over the city of Kampala, Uganda. A grid of circles is layered on top of the map to suggest the areas with high levels of a certain pollutant; PM2.5. Various static sensors are transmitting data which is then collected and used to predict the value of PM2.5 all over the city; always with some level of uncertainty. <p> The bluer a circle on the grid appears, the cleaner the air is over that area. Uncertainty is represented by how 'fuzzy' and big a circle appears; the larger and more opaque it is, the more trustworthy results we have. The map also displays locations for the static sensors. Click on a sensor or circle to discover more information about it.");
 }
 
 onPageLoad();
