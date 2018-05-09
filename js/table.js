@@ -392,10 +392,10 @@ function showBTabInstructions(){
           .style("display", "block")
           .style("width", "90%")
           .style("font-size", "20px")
-          .style("font-weight", "100")
+          .style("font-weight", "200")
           .style("font-family", "Helvetica Neue")
           .append("span")
-          .html(function () { return "Use buttons to select different views. Hover over a certain prediction to find out more information about it."; });
+          .html(function () { return "The following expresses an hourly prediction of PM2.5 for the city of Kampala. Use buttons to view summaries for the nextr 12, 16 or 24 hours. Hover over a certain prediction to find out more information about it."; });
 }
 
 loadData(startTime, endTime, 8);

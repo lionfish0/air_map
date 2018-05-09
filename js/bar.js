@@ -227,10 +227,10 @@ function showBarInstructions(){
           .style("display", "block")
           .style("width", "90%")
           .style("font-size", "20px")
-          .style("font-weight", "100")
+          .style("font-weight", "200")
           .style("font-family", "Helvetica Neue")
           .append("span")
-          .html(function () { return "Use buttons to view the graph for average PM2.5 levels by hour of day, day of week or month respectively."; });
+          .html(function () { return "This bar chart shows PM2.5 levels on average by hour of day. Use the buttons to view graphs for other chunks of time like day of week or month."; });
 }
 
 loadAvgData("hour");
