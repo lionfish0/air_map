@@ -27,7 +27,8 @@ function getData(data){
     height = 400;
 
     d3.select('#tableChart').select("h2").remove();
-    d3.select('#tableChart').select("svg.gTableButtons").remove();
+    d3.select('#tableChart').select(".tableInfo").remove();
+    d3.select('#tableChart').select(".tableLegends").remove();
     d3.select('#tableChart').select("svg.svgTable").remove();
 
     d3.select('#tableChart')
@@ -35,10 +36,22 @@ function getData(data){
       .attr("class", "ChartTitle").text("Forecast for next " + step + " hours");
 
     gTableButtons = d3.select('#tableChart')
+                .append("div")
+                .attr("class", "tableInfo")
+                .style("position", "relative")
                 .append("svg")
                 .attr("class", "gTableButtons")
                 .attr("width", width)
                 .attr("height", 100).append("g").attr("transform", "translate(0,0)");
+
+    d3.select('#tableChart')
+                .append("div")
+                .attr("class", "tableLegends")
+                .style("position", "relative");
+
+
+    d3.select('#tableChart .gTableButtons').append("div").attr("class", "tableLegend");
+//    .attr("transform", "translate(30, 80)");
 
     addButtons();
 
@@ -178,6 +191,14 @@ function buildTable(data){
           .attr("y2", 155)
           .style("stroke", "#DDDDDD");
 
+     table.selectAll('g.cells')
+          .append("line")
+          .attr("x1", boxWidth)
+          .attr("x2", boxWidth)
+          .attr("y1", 0 )
+          .attr("y2", 155)
+          .style("stroke", "#DDDDDD");
+
      table.selectAll('g.cells').on("mouseover", highlightElement);
 
      table.selectAll('g.cells').on("mouseout", function(d){
@@ -241,8 +262,7 @@ function highlightElement(d){
          .style("font-family", "Helvetica Neue")
          .style("font-size", "28px")
          .html(function(){
-//            if (d['values'][0]['mean'] >= 0 && d['values'][0]['mean'] < 12){ return "Air Quality looks ideal";}
-            if (d['values'][0]['mean'] >= 0 && d['values'][0]['mean'] < 12){ return "Air Quality is not ideal; sensitive groups are advised to stay indoors";}
+            if (d['values'][0]['mean'] >= 0 && d['values'][0]['mean'] < 12){ return "Air Quality looks ideal";}
             else if (d['values'][0]['mean'] >= 12.1 && d['values'][0]['mean'] < 35.4){return "Air Quality could have been better";}
             else if (d['values'][0]['mean'] >= 35.5 && d['values'][0]['mean'] < 55.4) {return "Air Quality is not ideal; sensitive groups are advised to stay indoors";}
             else if (d['values'][0]['mean'] >= 55.5 && d['values'][0]['mean'] <150.4) {return "Air Quality is really poor";}
@@ -295,12 +315,11 @@ function highlightElement(d){
            .style("font-family", "Helvetica Neue")
            .style("font-size", "16px")
            .html(function(){
-            if (d['values'][0]['std'] >= minSV2 && d['values'][0]['std'] < minSV2 + (maxSV2-minSV2)/4)  { return 'HIghly Uncertain Prediction';}
-            else if (d['values'][0]['std'] >=  minSV2 + (maxSV2-minSV2)/4 && d['values'][0]['std'] <  minSV2 + 2*(maxSV2-minSV2)/4)  {return 'Uncertain Prediction';}
-            else if (d['values'][0]['std'] >= minSV2 + 2*(maxSV2-minSV2)/4 && d['values'][0]['std'] >= minSV2 + 3*(maxSV2-minSV2)/4) {return 'Certain Prediction';}
-            else if (d['values'][0]['std'] >= minSV2 + 3*(maxSV2-minSV2)/4 && d['values'][0]['std'] <= maxSV2) {return 'Highly Certain Prediction';}
+            if (d['values'][0]['std'] >= minSV2 && d['values'][0]['std'] < minSV2 + (maxSV2-minSV2)/4)  { return 'Very accurate prediction';}
+            else if (d['values'][0]['std'] >=  minSV2 + (maxSV2-minSV2)/4 && d['values'][0]['std'] <  minSV2 + 2*(maxSV2-minSV2)/4)  {return 'Accurate Prediction';}
+            else if (d['values'][0]['std'] >= minSV2 + 2*(maxSV2-minSV2)/4 && d['values'][0]['std'] >= minSV2 + 3*(maxSV2-minSV2)/4) {return 'Prediction is not very accurate';}
+            else if (d['values'][0]['std'] >= minSV2 + 3*(maxSV2-minSV2)/4 && d['values'][0]['std'] <= maxSV2) {return 'Prediction is not accurate at all for this time';}
          });
-
 };
 
 /***** NOT USED ATM --- Get user's geolocation  ******/
@@ -372,6 +391,7 @@ function selectHours(){
 }
 
 function showBTabInstructions(){
+
     gTableButtons.append("g")
           .attr("transform", function(d){
          if (width<=1300) { return  "translate(450, -15)"; }
@@ -381,7 +401,7 @@ function showBTabInstructions(){
           .append("foreignObject")
           .attr("x", 0)
           .attr("y", 25)
-          .attr("height", 70)
+          .attr("height", 75)
           .attr("width", function(d){
                 if (width<=1300) { return  width - 420; }
                 else { return width - 380; }})
@@ -395,7 +415,90 @@ function showBTabInstructions(){
           .style("font-weight", "200")
           .style("font-family", "Helvetica Neue")
           .append("span")
-          .html(function () { return "The following expresses an hourly prediction of PM2.5 for the city of Kampala. Use buttons to view summaries for the nextr 12, 16 or 24 hours. Hover over a certain prediction to find out more information about it."; });
+          .html(function () { return "The following expresses an hourly prediction of PM2.5 for the city of Kampala. Use buttons to view summaries for the next 12, 16 or 24 hours. Hover over a certain prediction to find out more information about it."; });
+
+   buildTableLegends();
+}
+
+function buildTableLegends(){
+    gTableLegends = d3.select(".tableLegends");
+
+    gTableLegends.append("svg").attr("class", "tableLegendSVG").attr("width", "48%").attr("height", "120px").style("fill", "white");
+
+    gTableLegends.append("svg").attr("class", "tableLegend2SVG").attr("width", "48%").attr("height", "120px").style("fill", "white");
+
+    polLeg = d3.select(".tableLegendSVG").append("g").attr("class", "tablePolLegend").attr("transform", "translate(70,-5)");
+    conLeg = d3.select(".tableLegend2SVG").append("g").attr("class", "tableConfLegend").attr("transform", "translate(50,-5)");
+
+    polLeg.append("rect").attr("id", "legendbox").attr("height", "90px").attr("width", "465px").attr("x", 0).attr("y", 30).attr("rx", 25).attr("ry", 25);
+    polLeg.append("text").attr("width", 50).attr("x", 150).attr("y", 44).style("fill", "#D9B310").style("font-family", "Helvetica Neue").text("PM2.5 LEVEL (in µg/m3)");
+
+    conLeg.append("rect").attr("id", "legendbox").attr("height", "90px").attr("width", "465px").attr("x", 0).attr("y", 30).attr("rx", 25).attr("ry", 25);
+    conLeg.append("text").attr("width", 50).attr("x", 150).attr("y", 44).style("fill", "#D9B310").style("font-family", "Helvetica Neue").text("PREDICTION CONFIDENCE");
+
+    gPols = d3.select(".tablePolLegend").selectAll("g.pollutionImg").data(['verylow', 'low', 'moderate', 'high', 'veryhigh']).enter().append('g').attr("class", "pollutionImg").attr("transform", function(d, i) { return "translate(" + (10 + i*50) +",15)"; });
+
+    polLeg.selectAll("g.pollutionImg").append("svg:image")
+           .attr("x", function(d, i) { return (6 + i*50); })
+           .attr("y", 40)
+           .attr("width", 40)
+           .attr("height", 40)
+           .attr("xlink:xlink:href", function(d){
+            if (d == 'verylow')  { return 'images/verylow.png';}
+            else if (d == 'low')   {return 'images/low.png';}
+            else if (d == 'moderate')  {return 'images/moderate.png';}
+            else if (d == 'high')  {return 'images/high.png';}
+            else if (d == 'veryhigh')  {return 'images/veryhigh.png';}});
+
+    polLeg.selectAll("g.pollutionImg")
+         .append("foreignObject")
+         .attr("x", function(d, i) { return i*50 - 6; })
+         .attr("y", 80)
+         .attr("width", 65)
+         .attr("height",20)
+         .append("xhtml:div")
+         .append("tspan")
+         .attr("class", "table-legend")
+         .style("font-size", "14px")
+         .attr("y", 50)
+         .attr("dx", 8)
+         .html(function(d){
+            if (d == 'verylow')  { return 'Very Low';}
+            else if (d == 'low')   {return 'Low';}
+            else if (d == 'moderate')  {return 'Moderate';}
+            else if (d == 'high')  {return 'High';}
+            else if (d == 'veryhigh')  {return 'Very high';}});
+
+    gCons = d3.select(".tableConfLegend").selectAll("g.confidenceImg").data(['highlyUn', 'uncertain', 'certain', 'highlyCer']).enter().append('g').attr("class", "confidenceImg").attr("transform", function(d, i) { return "translate(" + (40 + i*60) +",15)"; });
+
+    conLeg.selectAll("g.confidenceImg").append("svg:image")
+           .attr("x", function(d, i) { return (6 + i*60); })
+           .attr("y", 40)
+           .attr("width", 40)
+           .attr("height", 40)
+           .attr("xlink:xlink:href", function(d){
+            if (d == 'highlyUn')  { return 'images/highly_uncertain.png';}
+            else if (d == 'uncertain')   {return 'images/uncertain.png';}
+            else if (d == 'certain')  {return 'images/certain.png';}
+            else if (d == 'highlyCer')  {return 'images/highly_certain.png';}});
+
+    conLeg.selectAll("g.confidenceImg")
+         .append("foreignObject")
+         .attr("x", function(d, i) { return i*60 - 40; })
+         .attr("y", 80)
+         .attr("width", 120)
+         .attr("height",20)
+         .append("xhtml:div")
+         .append("tspan")
+         .attr("class", "table-legend")
+         .style("font-size", "14px")
+         .attr("y", 50)
+         .attr("dx", 8)
+         .html(function(d){
+            if (d == 'highlyUn')  { return 'Highly Uncertain';}
+            else if (d == 'uncertain')   {return 'Uncertain';}
+            else if (d == 'certain')  {return 'Certain';}
+            else if (d == 'highlyCer')  {return 'Highly Certain';}});
 }
 
 loadData(startTime, endTime, 8);

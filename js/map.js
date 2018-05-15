@@ -116,19 +116,20 @@ function buildLegend(){
     d3.select(".legend").append("h4").attr("id", "legendTitle") ;
 
     d3.select(".legend")
-      .style("background-color", "#fff")
-      .style("left",  function(){
-        if (document.documentElement.clientWidth<=1300) { return "70px"; }
-         else { return "140px"; }});
+      .style("background-color", "rgba(255, 255, 255, 0.3)")
+      .style("margin", "auto")
+      .style("transform",  function(){
+        if (document.documentElement.clientWidth<1400) { return "translateX(10%)"; }
+         else { return "translateX(30%)"; }});
 
     d3.select("h4#legendTitle").attr("width", 50).text("LEGEND");
 
     legendSvg = d3.select(".legend")
                   .append("svg")
                   .attr("width",  function(){
-                        if (document.documentElement.clientWidth<=1300) { return "280px"; }
+                        if (document.documentElement.clientWidth<1400) { return "280px"; }
                          else { return "320px"; }})
-                  .attr("height", "290px");
+                  .attr("height", "300px");
 
     legendSvg.append("defs").append('filter')
                  .attr('id', 'blur')
@@ -146,7 +147,7 @@ function buildLegend(){
                  .attr('viewBox', '-5 -5 10 10')
                  .append('svg:path')
                  .attr('d', 'M 0,0 m -5,-5 L 5,0 L -5,5 Z')
-                 .attr('fill', '#666666');
+                 .attr('fill', 'white');
 
     legendSvg.append("defs").append('marker')
              .attr('id', 'marker_arrow_left')
@@ -159,18 +160,18 @@ function buildLegend(){
              .attr('viewBox', '-5 -5 10 10')
              .append('svg:path')
              .attr('d', 'M 0,0 m -5,-5 L 5,0 L -5,5 Z')
-             .attr('fill', '#666666');
+             .attr('fill', 'white');
 
     legendSvg.append("g")
              .attr("class", "colorLegend")
               .attr("transform", function(){
-                     if (document.documentElement.clientWidth<=1300) { return "translate(25,10)"; }
+                     if (document.documentElement.clientWidth<1400) { return "translate(25,10)"; }
                  else { return "translate(60,10)"; }});
 
     legendSvg.append("line")
              .attr("x1",(-2))
              .attr("x2",  function(){
-                        if (document.documentElement.clientWidth<=1300) { return "276px"; }
+                        if (document.documentElement.clientWidth<1400) { return "276px"; }
                          else { return "316px"; }})
              .attr("y1", 130 )
              .attr("y2", 130)
@@ -179,7 +180,7 @@ function buildLegend(){
     legendSvg.append("g")
              .attr("class", "sizeLegend")
              .attr("transform", function(){
-                        if (document.documentElement.clientWidth<=1300) { return "translate(25,155)"; }
+                        if (document.documentElement.clientWidth<1400) { return "translate(25,155)"; }
                          else { return "translate(60,155)"; }});
 
     nodeSize = d3.legendSize()
@@ -212,9 +213,9 @@ function buildLegend(){
 
     legendSvg.append("path")
     .attr("d", function(){
-                        if (document.documentElement.clientWidth<=1300) { return 'M 25,243 L 157,243'; }
+                        if (document.documentElement.clientWidth<1400) { return 'M 25,243 L 157,243'; }
                          else { return 'M 60,243 L 186,243'; }})
-        .attr('stroke', '#666666')
+        .attr('stroke', 'white')
         .attr('stroke-width', 1)
         .attr('stroke-linecap', 'round')
         .attr('marker-start', function(d,i){ return 'url(#marker_arrow_left)' })
@@ -223,7 +224,7 @@ function buildLegend(){
     legendSvg.append("line")
              .attr("x1",(-2))
               .attr("x2",  function(){
-                        if (document.documentElement.clientWidth<=1300) { return "276px"; }
+                        if (document.documentElement.clientWidth<1400) { return "276px"; }
                          else { return "316px"; }})
              .attr("y1", 260 )
              .attr("y2", 260)
@@ -232,7 +233,7 @@ function buildLegend(){
     legendSvg.append("g")
              .attr("class", "sensorLegend")
                .attr("transform", function(){
-                     if (document.documentElement.clientWidth<=1300) { return "translate(15,258)"; }
+                     if (document.documentElement.clientWidth<1400) { return "translate(15,258)"; }
                  else { return "translate(50,258)"; }});
 
     d3.select(".sensorLegend")
@@ -434,10 +435,9 @@ function showMapInstructions(){
                           .append("div")
                           .attr("id", "right")
                           .attr("position", "absolute")
-                          .attr("width",  function(){
-                             if (getWidth()<=1300) { return "360px"; }
-                             else { return "460px"; }})
+                          .attr("height", '850px')
                           .style("margin-top", "20px")
+                          .style("margin-bottom", "20px")
                           .style("margin-left", "auto")
                           .style("margin-right", "auto");
 
@@ -447,7 +447,7 @@ function showMapInstructions(){
                   .classed("instructionSet", true)
                   .attr("display", "block")
                   .append("foreignObject")
-                  .attr("x", 80)
+                  .attr("x", mapWidth)
                   .attr("y", 80)
                   .attr("height", 80)
                   .attr("width", 80)
@@ -456,7 +456,7 @@ function showMapInstructions(){
                   .style("margin-left", "auto")
                   .style("margin-right", "auto")
                   .style("display", "block")
-                  .style("width", "82%")
+                  .style("width", "100%")
                   .style("font-size", "20px")
                   .style("font-weight", "100")
                   .append("span")
