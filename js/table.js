@@ -22,7 +22,8 @@ function getMinMaxV2(data){
 
 /***** Get data, set up some basic page components  ******/
 function getData(data){
-    width = getWidth() - (getWidth()/6);
+
+    width = getWidth() - (getWidth()/5.5);
     step = data.length;
     height = 400;
 
@@ -42,11 +43,13 @@ function getData(data){
                 .append("svg")
                 .attr("class", "gTableButtons")
                 .attr("width", width)
-                .attr("height", 100).append("g").attr("transform", "translate(0,0)");
+                .attr("height", 90)
+                .append("g").attr("transform", "translate(0,0)");
 
     d3.select('#tableChart')
                 .append("div")
                 .attr("class", "tableLegends")
+                .attr("height", 120)
                 .style("position", "relative");
 
 
@@ -58,7 +61,10 @@ function getData(data){
     table = d3.select('#tableChart').style("margin-top", "10px").append("svg")
                                .attr("class", "svgTable")
                                .attr("width", width)
-                               .attr("height", height);
+                               .attr("height", height)
+                               .append("g")
+                               .attr("class", "tableG")
+                               .attr("transform",  "translate(0,0)");
 
     svgDefs = table.append('defs');
 
@@ -89,6 +95,7 @@ function filterData(data){
 /*****  Build tabular view  ******/
 function buildTable(data){
   boxWidth = width/step;
+
   getMinMaxV2(data);
 
   //bind data
@@ -97,7 +104,7 @@ function buildTable(data){
        .enter()
        .append('g')
        .attr("class", "cells")
-       .attr("transform", function(d, i) { return "translate(" + i*boxWidth+",20)"; });
+       .attr("transform", function(d, i) { return "translate(" + i*boxWidth+",60)"; });
 
   table.selectAll('g.cells')
        .append("rect")
@@ -220,7 +227,7 @@ function highlightElement(d){
   overview = table.append('g')
        .attr("class", "overview")
        .attr("display", "block")
-       .attr("transform", "translate(0,180)");
+       .attr("transform", "translate(0,220)");
 
   overview.append("rect")
           .attr("x",0)
@@ -231,6 +238,8 @@ function highlightElement(d){
           .attr("stroke", "white")
           .attr("stroke-width", "1px")
           .attr("width", width - 3)
+//          function(){ if (width<=1300) { return width - 30; }
+//                else { return width - 40; }})
           .attr("height",140)
           .style("fill", "url(#mainGradient)");
 //          .style("opacity", 0.8);
@@ -295,16 +304,16 @@ function highlightElement(d){
            .attr("width", 65)
            .attr("height", 65)
            .attr("xlink:xlink:href", function(){
-            if (d['values'][0]['std'] >= minSV2 && d['values'][0]['std'] < minSV2 + (maxSV2-minSV2)/4)  { return 'images/highly_uncertain.png';}
-            else if (d['values'][0]['std'] >=  minSV2 + (maxSV2-minSV2)/4 && d['values'][0]['std'] <  minSV2 + 2*(maxSV2-minSV2)/4)  {return 'images/uncertain.png';}
-            else if (d['values'][0]['std'] >= minSV2 + 2*(maxSV2-minSV2)/4 && d['values'][0]['std'] >= minSV2 + 3*(maxSV2-minSV2)/4) {return 'images/certain.png';}
-            else if (d['values'][0]['std'] >= minSV2 + 3*(maxSV2-minSV2)/4 && d['values'][0]['std'] <= maxSV2) {return 'images/highly_certain.png';}
+            if (d['values'][0]['std'] <=20)  { return 'images/almostCertain.png';}
+            else if (d['values'][0]['std'] >  20 && d['values'][0]['std'] <= 40)  {return 'images/quiteSure.png';}
+            else if (d['values'][0]['std'] > 40 && d['values'][0]['std'] <= 60) {return 'images/unsure.png';}
+            else if (d['values'][0]['std'] > 60) {return 'images/highlyUncertain.png';}
          });
 
      overview.append("foreignObject")
-           .attr("x", width - 160)
+           .attr("x", width - 180)
            .attr("y", 92)
-           .attr("width", 120)
+           .attr("width", 140)
            .attr("height", 50)
            .append("xhtml:div")
            .attr("class", "overviewText")
@@ -315,10 +324,10 @@ function highlightElement(d){
            .style("font-family", "Helvetica Neue")
            .style("font-size", "16px")
            .html(function(){
-            if (d['values'][0]['std'] >= minSV2 && d['values'][0]['std'] < minSV2 + (maxSV2-minSV2)/4)  { return 'Very accurate prediction';}
-            else if (d['values'][0]['std'] >=  minSV2 + (maxSV2-minSV2)/4 && d['values'][0]['std'] <  minSV2 + 2*(maxSV2-minSV2)/4)  {return 'Accurate Prediction';}
-            else if (d['values'][0]['std'] >= minSV2 + 2*(maxSV2-minSV2)/4 && d['values'][0]['std'] >= minSV2 + 3*(maxSV2-minSV2)/4) {return 'Prediction is not very accurate';}
-            else if (d['values'][0]['std'] >= minSV2 + 3*(maxSV2-minSV2)/4 && d['values'][0]['std'] <= maxSV2) {return 'Prediction is not accurate at all for this time';}
+            if (d['values'][0]['std'] <=20)  { return 'Very certain prediction (σ= ' +  d['values'][0]['std'] +")";}
+            else if (d['values'][0]['std'] >  20 && d['values'][0]['std'] <= 40)  {return 'Reasonably certain prediction (σ= ' +  d['values'][0]['std'] +")";}
+            else if (d['values'][0]['std'] > 40 && d['values'][0]['std'] <= 60) {return 'Somewhat uncertain prediction (σ= ' +  d['values'][0]['std'] +")";}
+            else if (d['values'][0]['std'] > 60 ) {return 'Uncertain prediction (σ= ' +  d['values'][0]['std'] +")";}
          });
 };
 
@@ -423,26 +432,49 @@ function showBTabInstructions(){
 function buildTableLegends(){
     gTableLegends = d3.select(".tableLegends");
 
-    gTableLegends.append("svg").attr("class", "tableLegendSVG").attr("width", "48%").attr("height", "120px").style("fill", "white");
+    gTableLegends.append("svg").attr("class", "tableLegendSVG").attr("width", "44%").attr("height", "180px").style("fill", "white");
 
-    gTableLegends.append("svg").attr("class", "tableLegend2SVG").attr("width", "48%").attr("height", "120px").style("fill", "white");
+    gTableLegends.append("svg").attr("class", "tableLegend2SVG").attr("width", "54%").attr("height", "180px").style("fill", "white");
 
-    polLeg = d3.select(".tableLegendSVG").append("g").attr("class", "tablePolLegend").attr("transform", "translate(70,-5)");
-    conLeg = d3.select(".tableLegend2SVG").append("g").attr("class", "tableConfLegend").attr("transform", "translate(50,-5)");
+    polLeg = d3.select(".tableLegendSVG")
+               .append("g")
+               .attr("class", "tablePolLegend")
+               .attr("transform", function(d){
+                if (width<=1300) { return "translate(10,-10)"; }
+                else { return "translate(150,-10)"; }
+               });
 
-    polLeg.append("rect").attr("id", "legendbox").attr("height", "90px").attr("width", "465px").attr("x", 0).attr("y", 30).attr("rx", 25).attr("ry", 25);
-    polLeg.append("text").attr("width", 50).attr("x", 150).attr("y", 44).style("fill", "#D9B310").style("font-family", "Helvetica Neue").text("PM2.5 LEVEL (in µg/m3)");
+    conLeg = d3.select(".tableLegend2SVG")
+               .append("g")
+               .attr("class", "tableConfLegend")
+                              .attr("transform", function(d){
+                if (width<=1300) { return "translate(20,-10)"; }
+                else { return "translate(150,-10)"; }
+               });
 
-    conLeg.append("rect").attr("id", "legendbox").attr("height", "90px").attr("width", "465px").attr("x", 0).attr("y", 30).attr("rx", 25).attr("ry", 25);
-    conLeg.append("text").attr("width", 50).attr("x", 150).attr("y", 44).style("fill", "#D9B310").style("font-family", "Helvetica Neue").text("PREDICTION CONFIDENCE");
+    polLeg.append("rect").attr("id", "legendbox").attr("height", "150px").attr("width", "500px").attr("x", 0).attr("y", 27).attr("rx", 25).attr("ry", 25);
+    polLeg.append("text").attr("width", 50).attr("x", 160).attr("y", 44).style("fill", "#D9B310").style("font-family", "Helvetica Neue").text("PM2.5 LEVEL");
+
+    conLeg.append("rect").attr("id", "legendbox").attr("height", "150px").attr("width", "600px").attr("x", 0).attr("y", 27).attr("rx", 25).attr("ry", 25);
+    conLeg.append("text").attr("width", 50).attr("x", 160).attr("y", 44).style("fill", "#D9B310").style("font-family", "Helvetica Neue").text("PREDICTION CONFIDENCE");
+
+    polLeg.append("foreignObject")
+         .attr("x", 18)
+         .attr("y", 55)
+         .attr("width", 500)
+         .attr("height", 45)
+         .append("xhtml:div")
+         .append("tspan")
+         .attr("class", "legendText")
+         .html("Cloud colour corresponds to PM2.5 measurement (in µg/m3) ");
 
     gPols = d3.select(".tablePolLegend").selectAll("g.pollutionImg").data(['verylow', 'low', 'moderate', 'high', 'veryhigh']).enter().append('g').attr("class", "pollutionImg").attr("transform", function(d, i) { return "translate(" + (10 + i*50) +",15)"; });
 
     polLeg.selectAll("g.pollutionImg").append("svg:image")
-           .attr("x", function(d, i) { return (6 + i*50); })
-           .attr("y", 40)
-           .attr("width", 40)
-           .attr("height", 40)
+           .attr("x", function(d, i) { return (20 + i*50); })
+           .attr("y", 80)
+           .attr("width", 45)
+           .attr("height", 45)
            .attr("xlink:xlink:href", function(d){
             if (d == 'verylow')  { return 'images/verylow.png';}
             else if (d == 'low')   {return 'images/low.png';}
@@ -452,8 +484,8 @@ function buildTableLegends(){
 
     polLeg.selectAll("g.pollutionImg")
          .append("foreignObject")
-         .attr("x", function(d, i) { return i*50 - 6; })
-         .attr("y", 80)
+         .attr("x", function(d, i) { return 10 +i*50; })
+         .attr("y", 125)
          .attr("width", 65)
          .attr("height",20)
          .append("xhtml:div")
@@ -469,25 +501,36 @@ function buildTableLegends(){
             else if (d == 'high')  {return 'High';}
             else if (d == 'veryhigh')  {return 'Very high';}});
 
-    gCons = d3.select(".tableConfLegend").selectAll("g.confidenceImg").data(['highlyUn', 'uncertain', 'certain', 'highlyCer']).enter().append('g').attr("class", "confidenceImg").attr("transform", function(d, i) { return "translate(" + (40 + i*60) +",15)"; });
+    conLeg.append("foreignObject")
+         .attr("x", 18)
+         .attr("y", 55)
+         .attr("width", 580)
+         .attr("height", 45)
+         .append("xhtml:div")
+         .append("tspan")
+         .attr("class", "legendText")
+         .html("As the Ozone layer is affected, the prediction confidence increases (at standard deviation σ level)");
+
+    gCons = d3.select(".tableConfLegend").selectAll("g.confidenceImg").data(['highlyUncertain', 'unsure', 'quiteSure', 'almostCertain']).enter().append('g').attr("class", "confidenceImg").attr("transform", function(d, i) { return "translate(" + (50 + i*80) +",15)"; });
 
     conLeg.selectAll("g.confidenceImg").append("svg:image")
-           .attr("x", function(d, i) { return (6 + i*60); })
-           .attr("y", 40)
+           .attr("x", function(d, i) { return (20 + i*60); })
+           .attr("y", 80)
            .attr("width", 40)
            .attr("height", 40)
            .attr("xlink:xlink:href", function(d){
-            if (d == 'highlyUn')  { return 'images/highly_uncertain.png';}
-            else if (d == 'uncertain')   {return 'images/uncertain.png';}
-            else if (d == 'certain')  {return 'images/certain.png';}
-            else if (d == 'highlyCer')  {return 'images/highly_certain.png';}});
+            if (d == 'highlyUncertain')  { return 'images/highlyUncertain.png';}
+            else if (d == 'unsure')   {return 'images/unsure.png';}
+            else if (d == 'quiteSure')  {return 'images/quiteSure.png';}
+            else if (d == 'almostCertain')  {return 'images/almostCertain.png';}});
+
 
     conLeg.selectAll("g.confidenceImg")
          .append("foreignObject")
-         .attr("x", function(d, i) { return i*60 - 40; })
-         .attr("y", 80)
-         .attr("width", 120)
-         .attr("height",20)
+         .attr("x", function(d, i) { return i*60 - 18; })
+         .attr("y", 125)
+         .attr("width", 115)
+         .attr("height", 45)
          .append("xhtml:div")
          .append("tspan")
          .attr("class", "table-legend")
@@ -495,10 +538,10 @@ function buildTableLegends(){
          .attr("y", 50)
          .attr("dx", 8)
          .html(function(d){
-            if (d == 'highlyUn')  { return 'Highly Uncertain';}
-            else if (d == 'uncertain')   {return 'Uncertain';}
-            else if (d == 'certain')  {return 'Certain';}
-            else if (d == 'highlyCer')  {return 'Highly Certain';}});
+            if (d == 'highlyUncertain')  { return "Very uncertain/ Don't know: >60%";}
+            else if (d == 'unsure')   {return "Unsure: 40-60%";}
+            else if (d == 'quiteSure')  {return "Quite sure: 20%-40%";}
+            else if (d == 'almostCertain')  {return "Almost Certain: <20%";}});
 }
 
 loadData(startTime, endTime, 8);

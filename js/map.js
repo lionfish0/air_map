@@ -173,8 +173,8 @@ function buildLegend(){
              .attr("x2",  function(){
                         if (document.documentElement.clientWidth<1400) { return "276px"; }
                          else { return "316px"; }})
-             .attr("y1", 130 )
-             .attr("y2", 130)
+             .attr("y1", 128 )
+             .attr("y2", 128)
              .style("stroke", "#DDDDDD");
 
     legendSvg.append("g")
@@ -188,9 +188,9 @@ function buildLegend(){
                  .cells(4)
                  .title("Node size and transparency represent prediction confidence")
                  .titleWidth(250)
-//                 .labelWrap(20)
+                 .labelWrap(20)
                  .orient('horizontal')
-                 .labels(["Uncertain ", "", "", "Certain"])
+                 .labels(["Very Uncertain ", "", "", "Almost Certain"])
                  .labelAlign("start")
                  .labelOffset(15)
                  .shapeWidth(60)
@@ -213,8 +213,8 @@ function buildLegend(){
 
     legendSvg.append("path")
     .attr("d", function(){
-                        if (document.documentElement.clientWidth<1400) { return 'M 25,243 L 157,243'; }
-                         else { return 'M 60,243 L 186,243'; }})
+                        if (document.documentElement.clientWidth<1400) { return 'M 25,253 L 157,253'; }
+                         else { return 'M 60,253 L 186,253'; }})
         .attr('stroke', 'white')
         .attr('stroke-width', 1)
         .attr('stroke-linecap', 'round')
@@ -226,8 +226,8 @@ function buildLegend(){
               .attr("x2",  function(){
                         if (document.documentElement.clientWidth<1400) { return "276px"; }
                          else { return "316px"; }})
-             .attr("y1", 260 )
-             .attr("y2", 260)
+             .attr("y1", 262 )
+             .attr("y2", 262)
              .style("stroke", "#DDDDDD");
 
     legendSvg.append("g")
@@ -260,7 +260,8 @@ function calculate(data){
 
     uncertaintyScale = d3.scaleQuantile()
                          .domain([minStd, minStd + ((maxStd-minStd)/3), minStd + 2*((maxStd-minStd)/3), maxStd])
-                         .range(["Highly Certain", "Moderately Certain", "Moderately Uncertain", "Highly Uncertain"]);
+                         .domain([0, 20, 40, 60])
+                         .range(["Very Certain (σ =", "Reasonably Certain (σ =", "Somewhat Uncertain (σ =", "Uncertain (σ ="]);
 
     pollutionScale = d3.scaleQuantile()
                          .domain([minMean, minMean + ((maxMean-minMean)/4), minMean + 2*((maxMean-minMean)/4), minMean + 3*((maxMean-minMean)/4),  maxMean])
@@ -319,15 +320,15 @@ function buildMap(){
                     "interpolate",
                     ["linear"],
                     ["get", "std"],
-                    minStd, 14,
-                    maxStd, 7
+                    0, 14,
+                    100, 7
                 ],
                 16, [
                     "interpolate",
                     ["linear"],
                     ["get", "std"],
-                    minStd, 14,
-                    maxStd, 7
+                    0, 14,
+                    100, 7
                 ]
             ],
             "circle-color":
@@ -410,7 +411,7 @@ function buildMap(){
                 .setLngLat(coordinates)
                 .setHTML(
                     '<font size="1" color="#608985"> PM2.5 level: </font><font size="1">' + pollutionScale(pollutant) + " ( " + pollutant + " )" + '</font><br>' +
-                    '<font size="1" color="#608985"> Standard Deviation (Confidence): </font><font size="1">' + uncertaintyScale(confidence) + " ( " + confidence + " )" + '</font><br>' +
+                    '<font size="1" color="#608985"> Prediction Confidence: </font><font size="1">' + uncertaintyScale(confidence) + " " + confidence + ')' + '</font><br>' +
                     '<font size="1" color="#608985"> Coordinates: </font><font size="1">' + coordinates + '</font><br>')
                 .addTo(map);
         });

@@ -4,14 +4,15 @@ body {
 }
 
 #containerThree {
-    height:600px;
+    height:780px;
     margin: auto;
     width: 96%;
+    overflow:hidden;
 }
 
 #tableChart {
    width: 100%;
-   height:600px;
+   height:780px;
 }
 
 .pollutionTable {
@@ -34,6 +35,11 @@ body {
   font-family:  "Helvetica Neue",Helvetica,Arial,sans-serif;
   font-weight: 200;
  }
+
+ .legendText{
+    font: 14px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    font-weight: 300;
+  }
 
 
  #legendbox {
@@ -76,7 +82,7 @@ body {
 }
 
 .stop-right {
-   stop-color: #3369CE;  /* blue */
+   stop-color: #0e50cc;  /* blue */
 }
 
 .ChartTitle {
