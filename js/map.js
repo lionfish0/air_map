@@ -1,10 +1,11 @@
 mapboxgl.accessToken = 'pk.eyJ1IjoiaXJlbWljMDEiLCJhIjoiY2l0cGx6NGloMDAwcTJ5cGZ3bnp1ZDJzdiJ9.a0Qb6q_5wUEWM3mgrA95YQ';
 url = "http://54.194.132.252:8080/";
+latlonVariable = [32.55,0.37];
 
 var currentCoordinates;
 
-//var filenames = [ url + "predictgrid/full/pm25/0.27/32.55/0.37/32.65/" + toISOStringLocal(new Date()),  url + "getsensorlist"];
-var filenames = [url + "predictgrid/full/pm25/0.27/32.55/0.37/32.65/2018-04-30T09:48:39",  url + "getsensorlist"];
+var filenames = [ url + "predictgrid/full/pm25/0.27/32.55/0.37/32.65/" + toISOStringLocal(new Date()),  url + "getsensorlist"];
+//var filenames = [url + "predictgrid/full/pm25/0.27/32.55/0.37/32.65/2018-04-30T09:48:39",  url + "getsensorlist"];
 var queue = d3.queue();
 
 console.log("1.  API called by Map Graph: " + filenames);
@@ -398,10 +399,15 @@ function buildMap(){
 
         // When click event occurs on grid element, open popup at the location of the feature
         map.on('click', 'PM2.5Layer', function (e) {
-
             coordinates = e.features[0].geometry.coordinates.slice();
             pollutant = e.features[0].properties.mean;
             confidence = e.features[0].properties.std;
+
+        latlonVariable = coordinates;
+        loadAvgData('hour', latlonVariable[1] + '/' + latlonVariable[0]);
+
+        loadData(startTime, endTime, latlonVariable[1] + '/' + latlonVariable[0], 8);
+
 
             // Ensure that if the map is zoomed out such that multiple copies of the feature are visible, the popup appears over the copy being pointed to.
             while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
@@ -462,7 +468,7 @@ function showMapInstructions(){
                   .style("font-weight", "100")
                   .append("span")
                   .attr("class", "tspan-class")
-                  .html("This map provides an effective overview of the current levels of air pollution over the city of Kampala, Uganda. A grid of circles is layered on top of the map to suggest the areas with high levels of a certain pollutant; PM2.5. Various static sensors are transmitting data which is then collected and used to predict the value of PM2.5 all over the city; always with some level of uncertainty. <p> The bluer a circle on the grid appears, the cleaner the air is over that area. Uncertainty is represented by how 'fuzzy' and big a circle appears; the larger and more opaque it is, the more trustworthy results we have. The map also displays locations for the static sensors. Click on a sensor or circle to discover more information about it.");
+                  .html("This map provides an overview of the current air pollution levels over the city of Kampala, Uganda. A grid of circles is layered on top of the map to suggest the areas with high levels of a certain pollutant; PM2.5. Static sensors are transmitting data which is then collected and used to predict the value of PM2.5 all over the city; always with some level of uncertainty. <p> The bluer a circle on the grid appears, the cleaner the air is over that area. Uncertainty is represented by how fuzzy and big a circle appears; the larger and more opaque it is, the more trustworthy results we have. The map also displays locations for the static sensors. Click on a sensor or circle to discover more information about it.");
 }
 
 onPageLoad();

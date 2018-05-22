@@ -5,9 +5,10 @@ tomorrow.setDate(new Date().getDate()+1);
 var endTime = toISOStringLocal(tomorrow);
 
 /***** Load data from API  ******/
-function loadData(startTime, endTime, input) {
-//    var api =  url + "predictovertime/pm25/" + startTime + "/" + endTime + "/0.338/32.55/" + input;
- var api =  url + "predictovertime/pm25/2018-04-29T09:48:39/2018-04-30T09:48:39/0.338/32.55/" + input;
+function loadData(startTime, endTime, coors, input) {
+    coors = latlonVariable[1] + '/' + latlonVariable[0];
+    var api =  url + "predictovertime/pm25/" + startTime + "/" + endTime + "/" + coors + "/" + input;     //calculate measurements between now & tomorrow
+// var api =  url + "predictovertime/pm25/2018-04-29T09:48:39/2018-04-30T09:48:39/0.338/32.55/" + input;
  console.log("3.  API called by Table Graph: " + api);
     d3.json(api).get( getData );
 }
@@ -155,10 +156,10 @@ function buildTable(data){
          if (width<=1300) { return 30; }
          else { return 45; }})
          .attr("xlink:xlink:href", function(d){
-            if (d['values'][0]['mean'] >= 0 && d['values'][0]['mean'] < 12)  { return 'images/verylow.png';}
-            else if (d['values'][0]['mean'] >= 12.1 && d['values'][0]['mean'] < 35.4)  {return 'images/low.png';}
-            else if (d['values'][0]['mean'] >= 35.5 && d['values'][0]['mean'] < 55.4)  {return 'images/moderate.png';}
-            else if (d['values'][0]['mean'] >= 55.5 && d['values'][0]['mean'] <150.4)  {return 'images/high.png';}
+            if (d['values'][0]['mean'] >= 0 && d['values'][0]['mean'] <= 12)  { return 'images/verylow.png';}
+            else if (d['values'][0]['mean'] >= 12.1 && d['values'][0]['mean'] <= 35.4)  {return 'images/low.png';}
+            else if (d['values'][0]['mean'] >= 35.5 && d['values'][0]['mean'] <= 55.4)  {return 'images/moderate.png';}
+            else if (d['values'][0]['mean'] >= 55.5 && d['values'][0]['mean'] <=150.4)  {return 'images/high.png';}
             else if (d['values'][0]['mean'] >= 150.5 && d['values'][0]['mean'] <= 500) {return 'images/veryhigh.png';}
          });
 
@@ -251,10 +252,10 @@ function highlightElement(d){
            .attr("width", 120)
            .attr("height", 120)
            .attr("xlink:xlink:href", function(){
-            if (d['values'][0]['mean'] >= 0 && d['values'][0]['mean'] < 12)  { return 'images/verylow.png';}
-            else if (d['values'][0]['mean'] >= 12.1 && d['values'][0]['mean'] < 35.4)  {return 'images/low.png';}
-            else if (d['values'][0]['mean'] >= 35.5 && d['values'][0]['mean'] < 55.4)  {return 'images/moderate.png';}
-            else if (d['values'][0]['mean'] >= 55.5 && d['values'][0]['mean'] <150.4)  {return 'images/high.png';}
+            if (d['values'][0]['mean'] >= 0 && d['values'][0]['mean'] <= 12)  { return 'images/verylow.png';}
+            else if (d['values'][0]['mean'] >= 12.1 && d['values'][0]['mean'] <= 35.4)  {return 'images/low.png';}
+            else if (d['values'][0]['mean'] >= 35.5 && d['values'][0]['mean'] <= 55.4)  {return 'images/moderate.png';}
+            else if (d['values'][0]['mean'] >= 55.5 && d['values'][0]['mean'] <=150.4)  {return 'images/high.png';}
             else if (d['values'][0]['mean'] >= 150.5 && d['values'][0]['mean'] <= 500) {return 'images/veryhigh.png';}
          });
 
@@ -271,10 +272,10 @@ function highlightElement(d){
          .style("font-family", "Helvetica Neue")
          .style("font-size", "28px")
          .html(function(){
-            if (d['values'][0]['mean'] >= 0 && d['values'][0]['mean'] < 12){ return "Air Quality looks ideal";}
-            else if (d['values'][0]['mean'] >= 12.1 && d['values'][0]['mean'] < 35.4){return "Air Quality could have been better";}
-            else if (d['values'][0]['mean'] >= 35.5 && d['values'][0]['mean'] < 55.4) {return "Air Quality is not ideal; sensitive groups are advised to stay indoors";}
-            else if (d['values'][0]['mean'] >= 55.5 && d['values'][0]['mean'] <150.4) {return "Air Quality is really poor";}
+            if (d['values'][0]['mean'] >= 0 && d['values'][0]['mean'] <= 12){ return "Air Quality looks ideal";}
+            else if (d['values'][0]['mean'] >= 12.1 && d['values'][0]['mean'] <= 35.4){return "Air Quality could have been better";}
+            else if (d['values'][0]['mean'] >= 35.5 && d['values'][0]['mean'] <= 55.4) {return "Air Quality is not ideal; sensitive groups are advised to stay indoors";}
+            else if (d['values'][0]['mean'] >= 55.5 && d['values'][0]['mean'] <=150.4) {return "Air Quality is really poor";}
             else if (d['values'][0]['mean'] >= 150.5 && d['values'][0]['mean'] <= 500) {return "Air Quality is Hazardous";}});
 
   overview.append("line")
@@ -396,7 +397,7 @@ function selectHours(){
         .attr("stroke-width", buttonClicked? 2 : 1);
 
     nextHours = this.__data__;
-    loadData(startTime, endTime, nextHours);
+    loadData(startTime, endTime, latlonVariable[1] + '/' + latlonVariable[0], nextHours);
 }
 
 function showBTabInstructions(){
@@ -424,7 +425,7 @@ function showBTabInstructions(){
           .style("font-weight", "200")
           .style("font-family", "Helvetica Neue")
           .append("span")
-          .html(function () { return "The following expresses an hourly prediction of PM2.5 for the city of Kampala. Use buttons to view summaries for the next 12, 16 or 24 hours. Hover over a certain prediction to find out more information about it."; });
+          .html(function () { return "The following expresses an hourly prediction of PM2.5 for the city of Kampala ( more specifically around: " +latlonVariable+ " ) . Use buttons to view summaries for the next 12, 16 or 24 hours. Hover over a certain prediction to find out more information about it."; });
 
    buildTableLegends();
 }
@@ -544,4 +545,4 @@ function buildTableLegends(){
             else if (d == 'almostCertain')  {return "Almost Certain: <20%";}});
 }
 
-loadData(startTime, endTime, 8);
+loadData(startTime, endTime, latlonVariable[1] + '/' + latlonVariable[0], 8);

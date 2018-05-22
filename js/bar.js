@@ -9,8 +9,9 @@ d3.select("#containerTwo")
   .html("Average PM2.5 levels");
 
 /***** Call API  ******/
-function loadAvgData(timechunk) {
- var predictOverTime =  "http://54.194.132.252:8080/getaverage/pm25/0.27/32.55/" + timechunk;
+function loadAvgData(timechunk, coors) {
+    coors = latlonVariable[1] + '/' + latlonVariable[0];
+    var predictOverTime =  "http://54.194.132.252:8080/getaverage/pm25/" + coors +"/" + timechunk;
 // var predictOverTime = "http://54.194.132.252:8080/getaverage/pm25/0.27/32.55/day";
     chunk = timechunk;
     console.log("2.  API called by Bar Graph: " + predictOverTime);
@@ -132,6 +133,7 @@ function buildBarGraph(data){
 
 }
 
+console.log(latlonVariable[1] + '/' + latlonVariable[0]);
 /***** Select scale to use for x axis; hourly, daily or monthly  ******/
 function selectScale(d,i){
     if(dataLength == 12)
@@ -150,7 +152,7 @@ function selectTimeChunk(){
         .attr("stroke-width", buttonClicked? 2 : 1);
 
     chunk = this.__data__;
-    loadAvgData(chunk);
+    loadAvgData(chunk, latlonVariable[1] + '/' + latlonVariable[0]);
 }
 
 /***** Mouseover functionality  ******/
@@ -230,9 +232,9 @@ function showBarInstructions(){
           .style("font-weight", "200")
           .style("font-family", "Helvetica Neue")
           .append("span")
-          .html(function () { return "This bar chart shows PM2.5 levels on average by hour of day. Use the buttons to view graphs for other chunks of time like day of week or month."; });
+          .html(function () { return "This bar chart shows PM2.5 levels on average by hour of day (around: " +latlonVariable+ ") . Use the buttons to view graphs for other chunks of time like day of week or month."; });
 }
 
-loadAvgData("hour");
+loadAvgData("hour", latlonVariable[1] + '/' + latlonVariable[0]);
 
 
