@@ -50,3 +50,10 @@ html, body {
 .frequency_buttons:focus{
    color:#f00;
 }
+
+footer {
+    font-weight: 200;
+    font-family:  "Helvetica Neue",Helvetica,Arial,sans-serif;
+    color: #D9B310;
+    margin-left: 20px;
+}
